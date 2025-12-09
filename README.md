@@ -37,3 +37,11 @@ pip install -r package.txt
 python main.py
 ```
 7. Open `index.php` in your browser and start controlling with the keys.
+
+## Requirements
+
+- [Node.js](https://nodejs.org/) with NPM
+- Node server running on a Raspberry Pi or any network-accessible machine
+- [Python](https://www.python.org/downloads/)
+- Optional: RPi.GPIO or gpiozero (if you want to control LEDs, motors, etc.)
+- Raspberry Pi (any model with Python 3)
