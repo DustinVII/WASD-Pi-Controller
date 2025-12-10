@@ -33,7 +33,7 @@ source myvenv/bin/activate
 ```
 6. Install Python dependencies and start Python `main.py` script
 ```bash
-pip install -r package.txt
+pip install -r requirements.txt
 python main.py
 ```
 7. Open `index.php` in your browser and start controlling with the keys.
