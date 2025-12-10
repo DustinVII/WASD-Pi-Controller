@@ -1,5 +1,5 @@
  // Connect to your Socket.io server
- const socket = io("http://dustinpi:3000");
+ const socket = io("http://dustinpizero:3000");
 
  // Map keys to HTML elements
  const keyMap = {
@@ -15,7 +15,7 @@
      if (!keyMap[key]) return;
 
      keyMap[key].addClass("active");
-     socket.emit("move", { key: key });
+     socket.emit("move", { key: key, action: "down" });
      console.log("Pressed:", key);
  });
 
@@ -25,4 +25,6 @@
      if (!keyMap[key]) return;
 
      keyMap[key].removeClass("active");
+     socket.emit("move", { key: key, action: "up" });
+     console.log("Released:", key);
  });

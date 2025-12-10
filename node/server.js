@@ -9,9 +9,10 @@ const io = new Server(httpServer, { cors: { origin: "*" } });
 io.on("connection", (socket) => {
 
     socket.on("move", (data) => {
-        console.log("Movement key:", data.key);
+        console.log(`Movement key ${data.key} with action ${data.action}`);
         io.emit("movement-command", data); // Send to Python
     });
+
 
 });
 
