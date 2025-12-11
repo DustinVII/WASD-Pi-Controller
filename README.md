@@ -23,28 +23,28 @@ This makes it perfect for robotics, LED control, small vehicles or any project w
 
 ## Setup for local servers
 1. Clone project to your Raspberry Pi
-```bash
-git clone https://github.com/DustinVII/WASD-Pi-Controller.git
-```
+    ```bash
+    git clone https://github.com/DustinVII/WASD-Pi-Controller.git
+    ```
 2. Set the correct host and port number in `/js/script.js`.
 3. Set the correct port in `node/server.js`.
 4. Install Node dependencies and start Node server in a new terminal
-```bash
-cd node
-npm install
-node server.js
-```
+    ```bash
+    cd node
+    npm install
+    node server.js
+    ```
 5. Create new Python virtual environment and activate it
-```bash
-cd python
-python -m venv myvenv
-source myvenv/bin/activate
-```
+    ```bash
+    cd python
+    python -m venv myvenv
+    source myvenv/bin/activate
+    ```
 6. Install Python dependencies and start Python `main.py` script
-```bash
-pip install -r requirements.txt
-python main.py
-```
+    ```bash
+    pip install -r requirements.txt
+    python main.py
+    ```
 7. Open `index.php` in your browser and start controlling with the keys.
 
 ## Setup for online web servers over HTTPS:
@@ -61,9 +61,9 @@ httpServer.listen(3000, () => {
 
 
 ```js
-httpServer.listen(3000, "0.0.0.0", () => {
+httpServer.listen(3000, "localhost", () => {
 ```
-Added `0.0.0.0` to bind all interfaces.
+Added `localhost` so it blocks external devices from connecting since Node talks directly to Apache and Apache to the rest.
 
 ### 2. Frontend JavaScript `script.js` changes
 **Change this**:
@@ -82,6 +82,7 @@ const socket = io(); // Automatically uses current domain + protocol
 If using Apache, a reverse proxy with WebSocket support is required.
 
 #### 3.1 Enable required Apache modules
+
 ```bash
 sudo a2enmod proxy
 sudo a2enmod proxy_http
@@ -89,6 +90,7 @@ sudo a2enmod proxy_wstunnel
 sudo a2enmod rewrite
 sudo systemctl restart apache2
 ```
+
 These modules allow Apache to forward WebSockets correctly.
 Node.js server needs to be running on HTTP (behind Apache SSL proxy).
 
