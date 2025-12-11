@@ -9,14 +9,17 @@ import atexit
 
 # --- Node server configuration ---
 node_server = "http://dustinpizero:3000"
-# node_server = "https://yoursubd.yourdomain.com" # Example for online server
 
+# === Pin Configuration (BCM numbering) ===
+TRIGGER_PIN = 23
+ECHO_PIN = 24
 
 # === LEDs and sensor ===
 led_w = gpiozero.LED(4)
 led_s = gpiozero.LED(17)
 led_d = gpiozero.LED(27)
 led_a = gpiozero.LED(22)
+sensor = gpiozero.DistanceSensor(echo=ECHO_PIN, trigger=TRIGGER_PIN, max_distance=2.0)
 
 # === Cleanup function ===
 def cleanup():
@@ -24,6 +27,7 @@ def cleanup():
     led_s.off()
     led_d.off()
     led_a.off()
+    sensor.close()
     print("Cleaned up GPIO.")
 
 atexit.register(cleanup)
@@ -46,7 +50,10 @@ def movement(data):
 
     if key == "w":
         led_w.on() if action == "down" else led_w.off()
-        print("Move forward" if action == "down" else "")
+        if distance_cm < 8:
+            print("Nope!")
+        else:
+            print("Move forward" if action == "down" else "")
     elif key == "a":
         led_a.on() if action == "down" else led_a.off()
         print("Move left" if action == "down" else "")
@@ -59,15 +66,24 @@ def movement(data):
 
 # --- Connect to server ---
 try:
-    sio.connect(
-        node_server,
-        transports=["websocket"],
-        socketio_path="/socket.io/"
-    )
+    sio.connect(node_server)
 except Exception as e:
     print(f"Failed to connect to Node server {node_server}:", e)
     exit(1)
 
+# --- Main Program ---
+try:
+    print("Measuring distance (Ctrl+C to stop)...")
+    while True:
+        distance_cm = sensor.distance * 100
+        print(f"{distance_cm:.2f} cm")
+        sleep(0.05)
+
+except KeyboardInterrupt:
+    print("\nCanceled by user.")
+
+finally:
+    print("App stopped.")
 
 # --- Keep Socket.IO client running ---
 try:
