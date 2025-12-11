@@ -12,7 +12,16 @@ This makes it perfect for robotics, LED control, small vehicles or any project w
 - Python client receives movement commands instantly
 - Easy to expand for GPIO/LED/motor control
 
-## Installation
+
+## Table of Contents
+
+- [Setup for local servers](#setup-for-local-servers)
+- [Setup for online web servers over HTTPS](#setup-for-online-web-servers-over-https)
+- [Requirements](#requirements)
+
+
+
+## Setup for local servers
 1. Clone project to your Raspberry Pi
 ```bash
 git clone https://github.com/DustinVII/WASD-Pi-Controller.git
