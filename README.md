@@ -52,28 +52,26 @@ Below is the correct Apache setup for HTTPS → HTTP upgrade support, which Sock
 
 ### 1. In Node.js server `server.js` change:
 
-**Before**
+**Change this**
 ```js
-httpServer.listen(3000);
+httpServer.listen(3000, () => {
 ```
-**Changes made**
+**to this**
 
-Added `0.0.0.0` to bind all interfaces:
+
 
 ```js
 httpServer.listen(3000, "0.0.0.0", () => {
-    console.log("Socket.io server running on port 3000!");
-});
 ```
-This keeps the server HTTP only, no SSL inside Node.js. **Reason**: SSL will be terminated by Apache → simpler, easier to manage. Result: Node.js server still listens on HTTP 3000 internally, accessible by Apache.
+Added `0.0.0.0` to bind all interfaces.
 
 ### 2. Frontend JavaScript `script.js` changes
-**Before**:
+**Change this**:
 ```js
 const socket = io("https://dustinpi:3000");
 ```
 
-**Changes made**:
+**to this**:
 ```js
 const socket = io(); // Automatically uses current domain + protocol
 ```
@@ -94,7 +92,7 @@ sudo systemctl restart apache2
 These modules allow Apache to forward WebSockets correctly.
 Node.js server needs to be running on HTTP (behind Apache SSL proxy).
 
-#### 3.2 Port 80 VirtualHost `/etc/apache2/sites-available/yoursubd.yoursite.com.conf`
+#### 3.2 Adjust port 80 VirtualHost `/etc/apache2/sites-available/yoursubd.yoursite.com.conf`
 
 ```apache
 <VirtualHost *:80>
@@ -106,10 +104,12 @@ Node.js server needs to be running on HTTP (behind Apache SSL proxy).
 </VirtualHost>
 ```
 
-This only redirects HTTP → HTTPS. No DocumentRoot needed. Prevents redirect loops
+This only redirects HTTP → HTTPS. Prevents redirect loops
 
-#### 3.3 Port 443 SSL VirtualHost `/etc/apache2/sites-available/yoursubd.yoursite.com.conf`
-Enable WebSocket upgrade headers. ProxyPassMatch handle `/socket.io` with or without trailing slash. SSL certificates correctly referenced.
+#### 3.3 Adjust port 443 SSL VirtualHost `/etc/apache2/sites-available/yoursubd.yoursite.com.conf`
+1. Enable WebSocket upgrade headers.
+2. ProxyPassMatch handle `/socket.io` with or without trailing slash.
+3. SSL certificates correctly referenced.
 
 ```apache
 <IfModule mod_ssl.c>
@@ -127,14 +127,16 @@ Enable WebSocket upgrade headers. ProxyPassMatch handle `/socket.io` with or wit
     # ------------------------------
     # Socket.IO + WebSocket Reverse Proxy
     # ------------------------------
+
+    #Tells Apache to pass the original Host header from the client to the backend server (localhost:3000). Useful if your Node.js server needs to know the original domain requested by the client.
     ProxyPreserveHost On
 
     RewriteEngine On
 
     # WebSocket Upgrade
-    RewriteCond %{HTTP:Upgrade} =websocket [NC]
-    RewriteCond %{HTTP:Connection} upgrade [NC]
-    RewriteRule ^/socket.io/(.*) ws://localhost:3000/socket.io/$1 [P,L]
+    RewriteCond %{HTTP:Upgrade} =websocket [NC] # Checks if the incoming request has the header Upgrade: websocket. This identifies WebSocket requests.
+    RewriteCond %{HTTP:Connection} upgrade [NC] # Checks if the Connection header contains upgrade. Also part of the WebSocket handshake.
+    RewriteRule ^/socket.io/(.*) ws://localhost:3000/socket.io/$1 [P,L] # If both conditions match (i.e., it’s a WebSocket request), proxy the request to the Node.js server at ws://localhost:3000/socket.io/....
 
     # Proxy normal Socket.IO requests (with or without trailing slash)
     ProxyPassMatch "^/socket.io(.*)$" "http://localhost:3000/socket.io$1"
